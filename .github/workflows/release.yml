@@ -60,7 +60,6 @@ jobs:
             **Git Tag:** ${{ steps.vars.outputs.tag }}
             **SHA1 Checksum:** `${{ steps.checksum.outputs.sha }}`
 
-            Copy the values below into your `repo.xml`.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
