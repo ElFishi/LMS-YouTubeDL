@@ -1,0 +1,105 @@
+[% PROCESS settings/header.html %]
+	<style type="text/css">
+		.status-ok    { color: green;   font-weight: bold; }
+		.status-error { color: red;     font-weight: bold; }
+		.muted        { color: dimgray; font-size: 0.9em;  }
+	</style>
+
+	[% WRAPPER setting title="PLUGIN_YOUTUBEDL_SETTINGS_YTDLP" desc="PLUGIN_YOUTUBEDL_SETTINGS_YTDLP_DESC" %]
+		<input type="text" class="stdedit" name="pref_yt_dlp"
+			id="pref_yt_dlp"
+			value="[% prefs.pref_yt_dlp %]"
+			size="60"
+			placeholder="[% 'PLUGIN_YOUTUBEDL_BINARY_PLACEHOLDER' | string %]">
+		[% IF ytdlp_msg %]
+			<br>
+			[% IF ytdlp_status == 'ok' %]
+				<span class="status-ok">&#10003; [% ytdlp_msg %]</span>
+			[% ELSE %]
+				<span class="status-error">&#10007; [% ytdlp_msg %]</span>
+			[% END %]
+		[% END %]
+	[% END %]
+
+	[% WRAPPER setting title="PLUGIN_YOUTUBEDL_SETTINGS_FFMPEG" desc="PLUGIN_YOUTUBEDL_SETTINGS_FFMPEG_DESC" %]
+		<input type="text" class="stdedit" name="pref_ffmpeg_path"
+			id="pref_ffmpeg_path"
+			value="[% prefs.pref_ffmpeg_path %]"
+			size="60"
+			placeholder="[% 'PLUGIN_YOUTUBEDL_FFMPEG_PLACEHOLDER' | string %]">
+		[% IF ffmpeg_msg %]
+			<br>
+			[% IF ffmpeg_status == 'ok' %]
+				<span class="status-ok">&#10003; [% ffmpeg_msg %]</span>
+			[% ELSE %]
+				<span class="status-error">&#10007; [% ffmpeg_msg %]</span>
+			[% END %]
+		[% END %]
+	[% END %]
+
+	[% WRAPPER setting title="PLUGIN_YOUTUBEDL_SETTINGS_DOWNLOAD" desc="PLUGIN_YOUTUBEDL_SETTINGS_DOWNLOAD_DESC" %]
+		<table style="border-collapse:collapse">
+			<tr>
+				<td style="padding:2px 8px 2px 0; white-space:nowrap">
+					<label for="pref_download_media_folder">[% "PLUGIN_YOUTUBEDL_MEDIAFOLDER" | string %]:</label>
+				</td>
+				<td>
+					<input type="text" class="stdedit" name="pref_download_media_folder"
+						id="pref_download_media_folder"
+						value="[% prefs.pref_download_media_folder %]"
+						size="60"
+						placeholder="[% 'PLUGIN_YOUTUBEDL_MEDIAFOLDER_PLACEHOLDER' | string %]">
+				</td>
+			</tr>
+			[% IF folder_msg %]
+			<tr>
+				<td></td>
+				<td>
+					[% IF folder_status == 'ok' %]
+						<span class="status-ok">&#10003; [% folder_msg %]</span>
+					[% ELSE %]
+						<span class="status-error">&#10007; [% folder_msg %]</span>
+					[% END %]
+				</td>
+			</tr>
+			[% END %]
+			<tr><td colspan="2" style="padding:6px 0 2px 0"><hr style="margin:0"></td></tr>
+			<tr>
+				<td style="padding:2px 8px 2px 0; white-space:nowrap">
+					<label for="pref_download_output_playlist">[% "PLUGIN_YOUTUBEDL_OUTPUT_PLAYLIST" | string %]:</label>
+				</td>
+				<td>
+					<input type="text" class="stdedit" name="pref_download_output_playlist"
+						id="pref_download_output_playlist"
+						value="[% prefs.pref_download_output_playlist %]"
+						size="60"
+						placeholder="[% 'PLUGIN_YOUTUBEDL_OUTPUT_PLAYLIST_PLACEHOLDER' | string %]">
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<span class="muted">[% "PLUGIN_YOUTUBEDL_OUTPUT_PLAYLIST_HINT" | string %]</span>
+				</td>
+			</tr>
+			<tr><td colspan="2" style="padding:6px 0 2px 0"><hr style="margin:0"></td></tr>
+			<tr>
+				<td style="padding:2px 8px 2px 0; white-space:nowrap">
+					<label for="pref_download_output_video">[% "PLUGIN_YOUTUBEDL_OUTPUT_VIDEO" | string %]:</label>
+				</td>
+				<td>
+					<input type="text" class="stdedit" name="pref_download_output_video"
+						id="pref_download_output_video"
+						value="[% prefs.pref_download_output_video %]"
+						size="60"
+						placeholder="[% 'PLUGIN_YOUTUBEDL_OUTPUT_VIDEO_PLACEHOLDER' | string %]">
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2">
+					<span class="muted">[% "PLUGIN_YOUTUBEDL_OUTPUT_VIDEO_HINT" | string %]</span>
+				</td>
+			</tr>
+		</table>
+	[% END %]
+
+[% PROCESS settings/footer.html %]

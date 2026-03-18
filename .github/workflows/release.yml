@@ -1,0 +1,72 @@
+name: Release Plugin
+
+on:
+  push:
+    tags:
+      - "*" # Triggers on matching tags
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Extract Version Info
+        id: vars
+        run: |
+          # Grabs the version between <version>...</version> in plugin/install.xml
+          XML_VERSION=$(grep -oP '(?<=<version>).*?(?=</version>)' plugin/install.xml)
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          # Combine them for a unique filename
+          FULL_VERSION="${XML_VERSION}.${TAG_NAME}"
+
+          echo "xml_version=$XML_VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Bundle Plugin (Automated Fork)
+        run: |
+          # Create a folder
+          mkdir -p release/YouTubeDL
+          cp -r plugin/* release/YouTubeDL/
+
+          # Inject custom version in install.xml
+          TARGET_XML="release/YouTubeDL/install.xml"
+          sed -i "s|<version>.*</version>|<version>${{ steps.vars.outputs.full_version }}</version>|" $TARGET_XML
+
+          # 6. Zip it up using the new standalone name
+          cd release
+          zip -r ../YouTubeDL-${{ steps.vars.outputs.full_version }}.zip YouTubeDL/
+
+      - name: Generate SHA1 Checksum
+        id: checksum
+        run: |
+          SHA=$(sha1sum YouTubeDL-${{ steps.vars.outputs.full_version }}.zip | awk '{ print $1 }')
+          echo "sha=$SHA" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: YouTubeDL-${{ steps.vars.outputs.full_version }}.zip
+          name: Release ${{ steps.vars.outputs.full_version }}
+          body: |
+            ### LMS Plugin Release
+            **Internal Version:** ${{ steps.vars.outputs.xml_version }}
+            **Git Tag:** ${{ steps.vars.outputs.tag }}
+            **SHA1 Checksum:** `${{ steps.checksum.outputs.sha }}`
+
+            Copy the values below into your `repo.xml`.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Show Manual XML Info
+        run: |
+          echo "--- DATA FOR REPO.XML ---"
+          echo "    <plugin version=\"${{ steps.vars.outputs.full_version }}\" name=\"YouTubeDL\" minTarget=\"7.5\" maxTarget=\"*\">"
+          echo "      <sha>${{ steps.checksum.outputs.sha }}</sha>"
+          echo "      <url>https://github.com/${{ github.repository }}/releases/download/${{ steps.vars.outputs.tag }}/YouTubeDL-${{ steps.vars.outputs.full_version }}.zip</url>"
