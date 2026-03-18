@@ -1,0 +1,141 @@
+PLUGIN_YOUTUBEDL
+	DE	YouTubeDL
+	EN	YouTubeDL
+
+PLUGIN_YOUTUBEDL_DESC
+	DE	Lädt YouTube-Audio per yt-dlp herunter. Stellt CLI/JSON-RPC-Befehle bereit: youtube download url:<url> und youtube download log.
+	EN	Downloads YouTube audio via yt-dlp. Provides CLI/JSON-RPC commands: youtube download url:<url> and youtube download log.
+
+# ── Settings page ─────────────────────────────────────────────────────────────
+
+PLUGIN_YOUTUBEDL_SETTINGS_YTDLP
+	DE	yt-dlp Binary
+	EN	yt-dlp binary
+
+PLUGIN_YOUTUBEDL_SETTINGS_YTDLP_DESC
+	DE	Pfad zum yt-dlp Binary. Leer lassen, um das Binary des YouTube-Plugins zu verwenden (empfohlen). Gib einen absoluten Pfad ein, um ein eigenes Binary zu verwenden.
+	EN	Path to the yt-dlp binary. Leave blank to use the binary from the YouTube plugin (recommended). Enter an absolute path to use a custom binary.
+
+PLUGIN_YOUTUBEDL_SETTINGS_FFMPEG
+	DE	ffmpeg-Pfad
+	EN	ffmpeg path
+
+PLUGIN_YOUTUBEDL_SETTINGS_FFMPEG_DESC
+	DE	Pfad zur ffmpeg-Binary (benötigt für Audioextraktion, Thumbnail-Einbettung und Konvertierung). Leer lassen, um ffmpeg aus dem System-PATH zu verwenden. Gib einen absoluten Pfad ein, wenn ffmpeg nicht im PATH ist.
+	EN	Path to the ffmpeg binary (required for audio extraction, thumbnail embedding and conversion). Leave blank to use ffmpeg from the system PATH. Enter an absolute path if ffmpeg is not on PATH.
+
+PLUGIN_YOUTUBEDL_SETTINGS_DOWNLOAD
+	DE	Download-Einstellungen
+	EN	Download settings
+
+PLUGIN_YOUTUBEDL_SETTINGS_DOWNLOAD_DESC
+	DE	Legt fest, wohin yt-dlp heruntergeladene Audiodateien speichert. Felder leer lassen, um die Standardwerte zu verwenden. yt-dlp-Ausgabe-Templates (z. B. %(title)s) werden unterstützt.
+	EN	Configure where yt-dlp saves downloaded audio files. Leave fields empty to use the defaults. yt-dlp output templates (e.g. %(title)s) are supported.
+
+PLUGIN_YOUTUBEDL_BINARY_FOUND
+	DE	Binary gefunden
+	EN	Binary found
+
+PLUGIN_YOUTUBEDL_BINARY_NOT_FOUND
+	DE	Binary nicht gefunden oder nicht ausführbar
+	EN	Binary not found or not executable
+
+PLUGIN_YOUTUBEDL_BINARY_PLACEHOLDER
+	DE	(leer lassen für YouTube-Plugin-Binary)
+	EN	(leave blank to use YouTube plugin binary)
+
+PLUGIN_YOUTUBEDL_FFMPEG_PLACEHOLDER
+	DE	(leer lassen für System-ffmpeg)
+	EN	(leave blank for system ffmpeg)
+
+PLUGIN_YOUTUBEDL_FFMPEG_SYSTEM
+	DE	System-ffmpeg gefunden
+	EN	System ffmpeg found
+
+PLUGIN_YOUTUBEDL_FFMPEG_NOT_FOUND
+	DE	ffmpeg nicht gefunden – bitte installieren oder Pfad angeben
+	EN	ffmpeg not found – please install it or enter a path
+
+PLUGIN_YOUTUBEDL_MEDIAFOLDER
+	DE	Medienordner (Stammverzeichnis)
+	EN	Media folder root
+
+PLUGIN_YOUTUBEDL_MEDIAFOLDER_PLACEHOLDER
+	DE	(leer lassen für LMS-Audioordner)
+	EN	(leave blank to use LMS audio folder)
+
+PLUGIN_YOUTUBEDL_OUTPUT_PLAYLIST
+	DE	Ausgabe-Template für Wiedergabeliste
+	EN	Playlist output template
+
+PLUGIN_YOUTUBEDL_OUTPUT_PLAYLIST_PLACEHOLDER
+	DE	(leer lassen für Standardwert)
+	EN	(leave blank for default)
+
+PLUGIN_YOUTUBEDL_OUTPUT_PLAYLIST_HINT
+	DE	Standard: &lt;Medienordner&gt;/YouTube/%(playlist)s/%(playlist_index)03d.%(title)s.%(ext)s
+	EN	Default: &lt;media folder&gt;/YouTube/%(playlist)s/%(playlist_index)03d.%(title)s.%(ext)s
+
+PLUGIN_YOUTUBEDL_OUTPUT_VIDEO
+	DE	Ausgabe-Template für Einzelvideo
+	EN	Single video output template
+
+PLUGIN_YOUTUBEDL_OUTPUT_VIDEO_PLACEHOLDER
+	DE	(leer lassen für Standardwert)
+	EN	(leave blank for default)
+
+PLUGIN_YOUTUBEDL_OUTPUT_VIDEO_HINT
+	DE	Standard: &lt;Medienordner&gt;/YouTube/Singles/%(uploader)s - %(title)s.%(ext)s
+	EN	Default: &lt;media folder&gt;/YouTube/Singles/%(uploader)s - %(title)s.%(ext)s
+
+PLUGIN_YOUTUBEDL_FOLDER_OK
+	DE	Ordner gefunden und beschreibbar.
+	EN	Folder found and writable.
+
+PLUGIN_YOUTUBEDL_FOLDER_NOT_FOUND
+	DE	Ordner nicht gefunden oder nicht erreichbar.
+	EN	Folder does not exist or is not accessible.
+
+PLUGIN_YOUTUBEDL_FOLDER_NOT_WRITABLE
+	DE	Ordner gefunden, aber LMS hat keine Schreibrechte.
+	EN	Folder exists but LMS does not have write permission.
+
+# ── CLI / download status ──────────────────────────────────────────────────────
+
+PLUGIN_YOUTUBEDL_STARTED
+	DE	Download gestartet
+	EN	Download started
+
+PLUGIN_YOUTUBEDL_FAILED
+	DE	Download fehlgeschlagen
+	EN	Download failed
+
+PLUGIN_YOUTUBEDL_PID
+	DE	Prozess-ID: %s
+	EN	Process ID: %s
+
+PLUGIN_YOUTUBEDL_FILES_SAVED_TO
+	DE	Dateien werden gespeichert unter
+	EN	Files will be saved to
+
+PLUGIN_YOUTUBEDL_NO_URL
+	DE	Fehler: Keine URL angegeben
+	EN	Error: no URL supplied
+
+PLUGIN_YOUTUBEDL_BAD_URL
+	DE	Fehler: URL kann nicht verarbeitet werden
+	EN	Error: cannot parse URL
+
+# ── Log viewer ────────────────────────────────────────────────────────────────
+
+PLUGIN_YOUTUBEDL_VIEW_LOG
+	DE	Download-Log anzeigen
+	EN	View download log
+
+PLUGIN_YOUTUBEDL_LOG_TITLE
+	DE	YouTubeDL Download-Log
+	EN	YouTubeDL Download Log
+
+PLUGIN_YOUTUBEDL_LOG_EMPTY
+	DE	Keine Log-Einträge gefunden
+	EN	No log entries found
