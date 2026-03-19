@@ -102,22 +102,6 @@ PLUGIN_YOUTUBEDL_FOLDER_NOT_WRITABLE
 
 # ── CLI / download status ──────────────────────────────────────────────────────
 
-PLUGIN_YOUTUBEDL_STARTED
-	DE	Download gestartet
-	EN	Download started
-
-PLUGIN_YOUTUBEDL_FAILED
-	DE	Download fehlgeschlagen
-	EN	Download failed
-
-PLUGIN_YOUTUBEDL_PID
-	DE	Prozess-ID: %s
-	EN	Process ID: %s
-
-PLUGIN_YOUTUBEDL_FILES_SAVED_TO
-	DE	Dateien werden gespeichert unter
-	EN	Files will be saved to
-
 PLUGIN_YOUTUBEDL_NO_URL
 	DE	Fehler: Keine URL angegeben
 	EN	Error: no URL supplied
@@ -127,14 +111,6 @@ PLUGIN_YOUTUBEDL_BAD_URL
 	EN	Error: cannot parse URL
 
 # ── Log viewer ────────────────────────────────────────────────────────────────
-
-PLUGIN_YOUTUBEDL_VIEW_LOG
-	DE	Download-Log anzeigen
-	EN	View download log
-
-PLUGIN_YOUTUBEDL_LOG_TITLE
-	DE	YouTubeDL Download-Log
-	EN	YouTubeDL Download Log
 
 PLUGIN_YOUTUBEDL_LOG_EMPTY
 	DE	Keine Log-Einträge gefunden
