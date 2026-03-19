@@ -80,6 +80,7 @@ sub cliDownload {
 
 	# Accept both positional (_p2) and tagged (url:) parameter forms.
 	my $url = $request->getParam('_p2') // $request->getParam('url');
+	$url =~ s/^url://i if defined $url;   # strip tag prefix if passed positionally
 
 	unless ($url) {
 		$log->warn('youtube download: no URL supplied');
@@ -104,98 +105,24 @@ sub cliDownload {
 	}
 
 	my $result = startDownload($type, $id);
+	$request->addResult('url', $result->{url}) if $result->{url};
+	$request->addResult('message', $result->{message}) if $result->{message};
 
-	my @items;
 	if ($result->{pid}) {
-		push @items, { type => 'text', name => cstring($client, 'PLUGIN_YOUTUBEDL_STARTED') };
-		push @items, { type => 'text', name => $result->{url} } if $result->{url};
-		push @items, {
-			type => 'text',
-			name => sprintf(cstring($client, 'PLUGIN_YOUTUBEDL_PID'), $result->{pid}),
-		};
-		push @items, {
-			type => 'text',
-			name => cstring($client, 'PLUGIN_YOUTUBEDL_FILES_SAVED_TO') . ' ' . _mediaFolder(),
-		};
-		push @items, {
-			type    => 'link',
-			name    => cstring($client, 'PLUGIN_YOUTUBEDL_VIEW_LOG'),
-			weblink => Slim::Utils::Network::serverURL() . '/plugins/YouTubeDL/downloadlog.html',
-		};
-	} else {
-		push @items, { type => 'text', name => cstring($client, 'PLUGIN_YOUTUBEDL_FAILED') };
-		push @items, { type => 'text', name => $result->{url}     } if $result->{url};
-		push @items, { type => 'text', name => $result->{message} } if $result->{message};
+		$request->addResult('log_url', Slim::Utils::Network::serverURL() . '/plugins/YouTubeDL/downloadlog.html');
+		$request->addResult('pid', $result->{pid});
+		$request->addResult('path', _mediaFolder());
 	}
 
-	my $index = 0;
-	for my $item (@items) {
-		$request->addResultLoop('item_loop', $index, 'text',    $item->{name});
-		$request->addResultLoop('item_loop', $index, 'type',    $item->{type});
-		$request->addResultLoop('item_loop', $index, 'weblink', $item->{weblink}) if $item->{weblink};
-		$index++;
-	}
-	$request->addResult('count',  $index);
-	$request->addResult('offset', 0);
 	$request->setStatusDone();
 }
 
 # CLI handler for "youtube download log"
-# Returns the most recent yt-dlp log run as a menu item list.
 sub cliDownloadLog {
-	my $request = shift;
-	my $client  = $request->client();
-
-	my $title = $client
-		? cstring($client, 'PLUGIN_YOUTUBEDL_LOG_TITLE')
-		: string('PLUGIN_YOUTUBEDL_LOG_TITLE');
-	$title ||= 'Download Log';
-	$request->addResult('title', $title);
-
-	my $logFile = _logFile();
-	my @lines;
-
-	if (-f $logFile) {
-		open(my $fh, '<:encoding(UTF-8)', $logFile);
-		@lines = <$fh>;
-		close($fh);
-		chomp @lines;
-
-		# Find the last === separator === and show from there to EOF.
-		my $last_sep = -1;
-		for (my $i = $#lines; $i >= 0; $i--) {
-			if ($lines[$i] =~ /^=== \d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} ===/) {
-				$last_sep = $i;
-				last;
-			}
-		}
-
-		if ($last_sep >= 0) {
-			@lines = @lines[$last_sep .. $#lines];
-		} else {
-			my $start = $#lines - 50;
-			$start = 0 if $start < 0;
-			@lines = @lines[$start .. $#lines];
-		}
-	}
-
-	my $index = 0;
-	if (@lines) {
-		for my $line (@lines) {
-			utf8::encode($line) if utf8::is_utf8($line);
-			$request->addResultLoop('item_loop', $index, 'text', $line);
-			$request->addResultLoop('item_loop', $index, 'type', 'text');
-			$index++;
-		}
-	} else {
-		$request->addResultLoop('item_loop', 0, 'text', cstring($client, 'PLUGIN_YOUTUBEDL_LOG_EMPTY'));
-		$request->addResultLoop('item_loop', 0, 'type', 'text');
-		$index = 1;
-	}
-
-	$request->addResult('count',  $index);
-	$request->addResult('offset', 0);
-	$request->setStatusDone();
+    my $request = shift;
+    my $serverUrl = Slim::Utils::Network::serverURL();
+    $request->addResult('log_url', $serverUrl . '/plugins/YouTubeDL/downloadlog.html');
+    $request->setStatusDone();
 }
 
 

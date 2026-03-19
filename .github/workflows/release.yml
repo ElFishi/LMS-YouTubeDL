@@ -16,6 +16,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Extract Plugin Name from Repository
+        id: repo
+        run: |
+          # Get repository name and strip LMS- prefix
+          REPO_NAME="${{ github.event.repository.name }}"
+          PLUGIN_NAME="${REPO_NAME#LMS-}"
+          echo "plugin_name=$PLUGIN_NAME" >> $GITHUB_OUTPUT
+          echo "Repository: $REPO_NAME → Plugin: $PLUGIN_NAME"
+
       - name: Extract Version Info
         id: vars
         run: |
@@ -29,33 +38,37 @@ jobs:
           echo "tag=$TAG_NAME" >> $GITHUB_OUTPUT
           echo "full_version=$FULL_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Bundle Plugin (Automated Fork)
+      - name: Bundle Plugin
         run: |
-          # Create a folder
-          mkdir -p release/YouTubeDL
-          cp -r plugin/* release/YouTubeDL/
+          PLUGIN_NAME="${{ steps.repo.outputs.plugin_name }}"
+          
+          # Create a folder with plugin name
+          mkdir -p release/${PLUGIN_NAME}
+          cp -r plugin/* release/${PLUGIN_NAME}/
 
           # Inject custom version in install.xml
-          TARGET_XML="release/YouTubeDL/install.xml"
+          TARGET_XML="release/${PLUGIN_NAME}/install.xml"
           sed -i "s|<version>.*</version>|<version>${{ steps.vars.outputs.full_version }}</version>|" $TARGET_XML
 
-          # 6. Zip it up using the new standalone name
+          # Zip it up using the plugin name
           cd release
-          zip -r ../YouTubeDL-${{ steps.vars.outputs.full_version }}.zip YouTubeDL/
+          zip -r ../${PLUGIN_NAME}-${{ steps.vars.outputs.full_version }}.zip ${PLUGIN_NAME}/
 
       - name: Generate SHA1 Checksum
         id: checksum
         run: |
-          SHA=$(sha1sum YouTubeDL-${{ steps.vars.outputs.full_version }}.zip | awk '{ print $1 }')
+          PLUGIN_NAME="${{ steps.repo.outputs.plugin_name }}"
+          SHA=$(sha1sum ${PLUGIN_NAME}-${{ steps.vars.outputs.full_version }}.zip | awk '{ print $1 }')
           echo "sha=$SHA" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: YouTubeDL-${{ steps.vars.outputs.full_version }}.zip
+          files: ${{ steps.repo.outputs.plugin_name }}-${{ steps.vars.outputs.full_version }}.zip
           name: Release ${{ steps.vars.outputs.full_version }}
           body: |
             ### LMS Plugin Release
+            **Plugin:** ${{ steps.repo.outputs.plugin_name }}
             **Internal Version:** ${{ steps.vars.outputs.xml_version }}
             **Git Tag:** ${{ steps.vars.outputs.tag }}
             **SHA1 Checksum:** `${{ steps.checksum.outputs.sha }}`
@@ -65,7 +78,9 @@ jobs:
 
       - name: Show Manual XML Info
         run: |
+          PLUGIN_NAME="${{ steps.repo.outputs.plugin_name }}"
           echo "--- DATA FOR REPO.XML ---"
-          echo "    <plugin version=\"${{ steps.vars.outputs.full_version }}\" name=\"YouTubeDL\" minTarget=\"7.5\" maxTarget=\"*\">"
+          echo "    <plugin version=\"${{ steps.vars.outputs.full_version }}\" name=\"${PLUGIN_NAME}\" minTarget=\"7.5\" maxTarget=\"*\">"
           echo "      <sha>${{ steps.checksum.outputs.sha }}</sha>"
-          echo "      <url>https://github.com/${{ github.repository }}/releases/download/${{ steps.vars.outputs.tag }}/YouTubeDL-${{ steps.vars.outputs.full_version }}.zip</url>"
+          echo "      <url>https://github.com/${{ github.repository }}/releases/download/${{ steps.vars.outputs.tag }}/${PLUGIN_NAME}-${{ steps.vars.outputs.full_version }}.zip</url>"
+          
