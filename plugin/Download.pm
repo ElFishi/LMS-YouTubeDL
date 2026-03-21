@@ -82,27 +82,20 @@ sub cliDownload {
 	my $url = $request->getParam('_p2') // $request->getParam('url');
 	$url =~ s/^url://i if defined $url;   # strip tag prefix if passed positionally
 
-	unless ($url) {
-		$log->warn('youtube download: no URL supplied');
-		$request->addResultLoop('item_loop', 0, 'text', cstring($client, 'PLUGIN_YOUTUBEDL_NO_URL'));
-		$request->addResultLoop('item_loop', 0, 'type', 'text');
-		$request->addResult('count',  1);
-		$request->addResult('offset', 0);
-		$request->setStatusDone();
-		return;
-	}
+    unless ($url) {
+        $log->warn('youtube download: no URL supplied');
+        $request->setStatusBadParams();
+        return;
+    }
 
 	my ($type, $id) = _parseUrl($url);
 
-	unless ($type && $id) {
-		$log->warn("youtube download: cannot parse URL '$url'");
-		$request->addResultLoop('item_loop', 0, 'text', cstring($client, 'PLUGIN_YOUTUBEDL_BAD_URL'));
-		$request->addResultLoop('item_loop', 0, 'type', 'text');
-		$request->addResult('count',  1);
-		$request->addResult('offset', 0);
-		$request->setStatusDone();
-		return;
-	}
+
+    unless ($type && $id) {
+        $log->warn("youtube download: cannot parse URL '$url'");
+        $request->setStatusBadParams();
+        return;
+    }
 
 	my $result = startDownload($type, $id);
 	$request->addResult('url', $result->{url}) if $result->{url};

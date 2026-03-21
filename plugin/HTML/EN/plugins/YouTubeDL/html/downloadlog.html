@@ -2,29 +2,117 @@
 <html>
 <head>
   <meta charset='utf-8'>
-  <meta http-equiv='Refresh' content='2'>
-  <title>YouTubeDL Log</title>
+  <title>yt-dlp log</title>
   <style>
+    @import url("https://fonts.googleapis.com/css?family=VT323&display=swap");
     body {
       background-color: #010;
       color: #3a3;
       height: 100vh;
+      height: 100svh; /* iOS Safari */
       overflow: hidden;
       margin: 1rem;
     }
+    body::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      height: 100svh;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0, 0.5),
+        rgba(0,0,0, 0.5) 1px,
+        transparent 1px,
+        transparent 2px
+      );
+      pointer-events: none;
+    }
     pre {
       max-height: calc(100vh - 2rem);
+      max-height: calc(100svh - 2rem);
       overflow: auto;
       scrollbar-width: none;
       display: flex;
       flex-direction: column-reverse;
-      font-family: monospace;
       scroll-behavior: smooth;
       white-space: pre-wrap;
+      font: 1.275rem VT323, monospace;
+      text-shadow: 0 0 .25rem #3a3;
+    }
+    ::selection {
+      background: #3a3;
+      color: #005033;
+      text-shadow: none;
+    }
+    .blink { animation: 0.5s blink step-end infinite; }
+    .stop-blink { animation: none !important; color: #3a3; }
+
+    @keyframes blink {
+      from, to {color: transparent; text-shadow: none; }
+      50% {color: #00de8b; }
     }
   </style>
 </head>
 <body>
-  <pre><div>[% content %]</div></pre>
+  <pre><span class="blink">&block;</span><div id="log-content">[% content %]</div></pre>
+  <script>
+
+let touchStartTime = 0;
+let refreshCount = 0; 
+const MAX_ROUNDS = 30;
+
+async function updateLog(intervalId) {
+  const logContainer = document.getElementById('log-content');
+  const cursor = document.querySelector('.blink');
+
+  if (refreshCount >= MAX_ROUNDS) {
+    clearInterval(intervalId);
+    if (cursor) {
+      cursor.classList.add('stop-blink'); // Stop the blinking
+      cursor.innerHTML = '␄'; // Optional status text
+    }
+    return;
+  }
+
+  try {
+    const response = await fetch(window.location.href);
+    if (!response.ok) throw new Error('Network response was not ok');
+    
+    const text = await response.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(text, 'text/html');
+    
+    const newNode = doc.getElementById('log-content');
+    if (newNode && logContainer && newNode.innerHTML !== logContainer.innerHTML) {
+      logContainer.innerHTML = newNode.innerHTML;
+    }
+    
+    refreshCount++;
+  } catch (err) {
+    console.error("Refresh failed:", err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Close Logic
+  window.addEventListener('keydown', () => window.close());
+  window.addEventListener('click', () => window.close());
+  window.addEventListener('touchstart', () => { touchStartTime = Date.now(); });
+  window.addEventListener('touchmove', () => { touchStartTime = 0; });
+  window.addEventListener('touchend', () => {
+    if (Date.now() - touchStartTime <= 300 && touchStartTime !== 0) {
+      window.close();
+    }
+  });
+
+  // Start the loop and pass the ID so it can kill itself later
+  const intervalId = setInterval(() => updateLog(intervalId), 2000);
+});
+
+  </script>
+
 </body>
 </html>
