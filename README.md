@@ -20,7 +20,7 @@ Downloads run as a detached background process. LMS keeps playing normally while
 - **Logitech Media Server** 7.7 or later
 - **[LMS YouTube plugin](https://github.com/philippe44/LMS-YouTube)** — recommended but not strictly required. YouTubeDL reuses its yt-dlp binary by default.
 - **yt-dlp** — either via the YouTube plugin's bundled binary or installed separately
-- **ffmpeg** — required by yt-dlp for audio extraction, thumbnail embedding and conversion. Must be on the system PATH or configured in the plugin settings.
+- **ffmpeg** — required by yt-dlp for audio extraction, thumbnail embedding and conversion. Must be on the system PATH or configured in the plugin settings. For Windows you find the binary in ffmpeg-git-essentials on https://www.gyan.dev/ffmpeg/builds/ .
 
 ---
 

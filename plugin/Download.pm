@@ -233,35 +233,46 @@ sub _launchUnix {
 # Windows: Win32::Process::Create via cmd.exe, mirroring ProtocolHandler.
 # fork()+exec() is unreliable on Windows Perl with LMS's tied stdio.
 sub _launchWindows {
-	my ($logFile, @cmd) = @_;
+    my ($logFile, @cmd) = @_;
 
-	eval { require Win32::Process } or do {
-		$log->error("Win32::Process not available: $@");
-		return { message => 'Win32::Process not available' };
-	};
+    eval { require Win32::Process } or do {
+        $log->error("Win32::Process not available: $@");
+        return { message => 'Win32::Process not available' };
+    };
 
-	my $cmdStr = join(' ', map { /\s/ ? qq{"$_"} : $_ } @cmd);
-	$cmdStr .= ' >>' . qq{"$logFile"} . ' 2>&1';
+    # Write separator and command line to log before launching,
+    # mirroring what _launchUnix does in the child process.
+    if (open(my $fh, '>>', $logFile)) {
+        my $ts = POSIX::strftime("\n=== %Y-%m-%d %H:%M:%S ===\n", localtime);
+        print $fh $ts;
+        print $fh join(' ', @cmd) . "\n";
+        close($fh);
+    }
 
-	my $proc = 0;
-	eval {
-		Win32::Process::Create(
-			$proc,
-			$ENV{COMSPEC},
-			"/c $cmdStr",
-			0,    # do NOT inherit parent handles
-			Win32::Process::NORMAL_PRIORITY_CLASS(),
-			'.',
-		);
-	};
+    my $cmdStr = join(' ', map { /[\s&|<>()]/ ? qq{"$_"} : $_ } @cmd);
+    $cmdStr .= ' >>"' . $logFile . '" 2>&1';
 
-	if ($@) {
-		$log->error("Win32::Process::Create failed: $@");
-		return { message => "Process creation failed: $@" };
-	}
+    my $comspec = $ENV{COMSPEC} || 'cmd.exe';
 
-	my $pid = eval { $proc->GetProcessID() } // 'unknown';
-	return { pid => $pid };
+    my $proc = 0;
+    eval {
+        Win32::Process::Create(
+            $proc,
+            $comspec,
+            qq{$comspec /c "$cmdStr"},
+            0,
+            Win32::Process::NORMAL_PRIORITY_CLASS(),
+            '.',
+        );
+    };
+
+    if ($@) {
+        $log->error("Win32::Process::Create failed: $@");
+        return { message => "Process creation failed: $@" };
+    }
+
+    my $pid = eval { $proc->GetProcessID() } // 'unknown';
+    return { pid => $pid };
 }
 
 
@@ -433,26 +444,31 @@ sub _buildCommand {
 #   2. YouTube plugin pref 'yt_dlp' resolved via YouTube's Utils::yt_dlp_bin()
 #   3. 'yt-dlp' on PATH
 sub _ytdlpBinary {
-	# 1. Custom path set in our own settings.
+	my ($override) = @_;
+
+	# 1. Explicit override (passed from Settings during save)
+	if ($override && $override ne '' && -f $override) {
+		return $override;
+	}
+
+	# 2. Plugin's own stored pref
 	my $custom = $prefs->get('yt_dlp');
-	if ($custom && $custom ne '' && -x $custom) {
+	if ($custom && $custom ne '' && -f $custom) {
 		return $custom;
 	}
 
-	# 2. Delegate to the YouTube plugin's Utils if available.
-	#    That function resolves a bare filename like "yt-dlp_linux" against the
-	#    YouTube plugin's Bin/ directory, producing the correct full path.
+	# 3. YouTube plugin's Utils
 	my $ytdlp = eval {
 		require Plugins::YouTube::Utils;
 		my $yt_prefs = preferences('plugin.youtube');
 		Plugins::YouTube::Utils::yt_dlp_bin( $yt_prefs->get('yt_dlp') );
 	};
-	return $ytdlp if $ytdlp && -x $ytdlp;
+	return $ytdlp if $ytdlp && -f $ytdlp;
 
-	# 3. Fall back to whatever is on PATH.
-	for my $candidate (qw(yt-dlp yt-dlp_linux yt-dlp_macos)) {
-		my $found = Slim::Utils::OSDetect::getOS()->which($candidate);
-		return $found if $found && -x $found;
+	# 4. PATH
+	for my $candidate (qw(yt-dlp yt-dlp.exe yt-dlp_linux yt-dlp_macos)) {
+		my $found = eval { Slim::Utils::OSDetect::getOS()->which($candidate) };
+		return $found if $found && -f $found;
 	}
 
 	return undef;

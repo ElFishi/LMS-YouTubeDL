@@ -42,18 +42,16 @@ sub handler {
 	# Show status of the configured (or auto-detected) yt-dlp binary.
 	{
 		require Plugins::YouTubeDL::Download;
-		# Re-read the (possibly just saved) pref value for display.
-		my $configured = $prefs->get('yt_dlp');
+		my $resolved = Plugins::YouTubeDL::Download::_ytdlpBinary(
+			$params->{saveSettings} ? $params->{pref_yt_dlp} : undef
+		);
 
-		# Determine what binary will actually be used.
-		my $resolved = Plugins::YouTubeDL::Download::_ytdlpBinary();
-
-		if ($resolved && -x $resolved) {
-			$params->{ytdlp_status}  = 'ok';
-			$params->{ytdlp_msg}     = string('PLUGIN_YOUTUBEDL_BINARY_FOUND') . ': ' . $resolved;
+		if ($resolved && -f $resolved) {
+			$params->{ytdlp_status} = 'ok';
+			$params->{ytdlp_msg}    = string('PLUGIN_YOUTUBEDL_BINARY_FOUND') . ': ' . $resolved;
 		} else {
-			$params->{ytdlp_status}  = 'error';
-			$params->{ytdlp_msg}     = string('PLUGIN_YOUTUBEDL_BINARY_NOT_FOUND');
+			$params->{ytdlp_status} = 'error';
+			$params->{ytdlp_msg}    = string('PLUGIN_YOUTUBEDL_BINARY_NOT_FOUND');
 		}
 	}
 
@@ -64,10 +62,13 @@ sub handler {
 	}
 
 	{
-		my $ffmpeg = $prefs->get('ffmpeg_path');
+		# Use the just-submitted value if saving, otherwise the stored pref.
+		my $ffmpeg = $params->{saveSettings}
+			? $params->{pref_ffmpeg_path}
+			: $prefs->get('ffmpeg_path');
+
 		if ($ffmpeg && $ffmpeg ne '') {
-			# User has set a custom path — validate it.
-			if (-x $ffmpeg) {
+			if (-f $ffmpeg) {
 				$params->{ffmpeg_status} = 'ok';
 				$params->{ffmpeg_msg}    = string('PLUGIN_YOUTUBEDL_BINARY_FOUND') . ': ' . $ffmpeg;
 			} else {
@@ -75,7 +76,6 @@ sub handler {
 				$params->{ffmpeg_msg}    = string('PLUGIN_YOUTUBEDL_BINARY_NOT_FOUND');
 			}
 		} else {
-			# No custom path — check whether ffmpeg is on PATH.
 			my $found = _whichFfmpeg();
 			if ($found) {
 				$params->{ffmpeg_status} = 'ok';
@@ -139,14 +139,27 @@ sub _cleanPath {
 
 # Try to find ffmpeg on the system PATH.
 sub _whichFfmpeg {
+	# Check the same directory as the yt-dlp binary first.
+	my $ytdlp = eval { Plugins::YouTubeDL::Download::_ytdlpBinary() };
+	if ($ytdlp) {
+		my $dir      = (File::Spec->splitpath($ytdlp))[1];
+		my $ffmpeg   = File::Spec->catfile($dir, 'ffmpeg');
+		my $ffmpegex = File::Spec->catfile($dir, 'ffmpeg.exe');
+		return $ffmpeg   if -f $ffmpeg;
+		return $ffmpegex if -f $ffmpegex;
+	}
+
+	# Check PATH.
 	for my $name (qw(ffmpeg ffmpeg.exe)) {
 		my $found = eval { Slim::Utils::OSDetect::getOS()->which($name) };
-		return $found if $found && -x $found;
+		return $found if $found && -f $found;
 	}
-	# Fallback: scan common locations
+
+	# Hardcoded Unix locations.
 	for my $path (qw(/usr/bin/ffmpeg /usr/local/bin/ffmpeg /opt/homebrew/bin/ffmpeg)) {
-		return $path if -x $path;
+		return $path if -f $path;
 	}
+
 	return undef;
 }
 
