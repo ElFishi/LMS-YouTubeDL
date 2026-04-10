@@ -1,5 +1,5 @@
 # YouTubeDL — LMS Plugin
-![Status](https://img.shields.io/badge/status-experimental-orange) ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-blue) ![LMS](https://img.shields.io/badge/LMS-7.7%2B-informational) ![License](https://img.shields.io/badge/license-GPLv2-green) ![Maintenance](https://img.shields.io/badge/maintained-for%20personal%20use-lightgrey) ![Release](https://img.shields.io/github/v/release/ElFishi/yt2lms)
+![Status](https://img.shields.io/badge/status-experimental-orange) ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows%20%7C%20macOS-blue) ![LMS](https://img.shields.io/badge/LMS-7.7%2B-informational) ![License](https://img.shields.io/badge/license-GPLv2-green) ![Maintenance](https://img.shields.io/badge/maintained-for%20personal%20use-lightgrey) ![Release](https://img.shields.io/github/v/release/ElFishi/LMS-YouTubeDL)
 
 > **⚠️ Experimental — use at your own risk.**  
 > This plugin is a personal project, provided as-is with no warranty and no support.
