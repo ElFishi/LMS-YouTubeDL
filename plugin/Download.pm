@@ -193,6 +193,8 @@ sub _launchUnix {
 		# ── child ──
 		# $logFile was resolved in the parent; we never call LMS code here.
 
+		umask(0002); # allow group to write
+
 		# fd 0 → /dev/null
 		my $null_fd = POSIX::open('/dev/null', O_RDONLY);
 		POSIX::dup2($null_fd, 0) if defined $null_fd && $null_fd >= 0;
